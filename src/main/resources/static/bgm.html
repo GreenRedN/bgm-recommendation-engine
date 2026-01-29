@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>BGM 추천 테스트</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --bg-card: #ffffff;
+            --border-subtle: #e5e7eb;
+            --border-strong: #d1d5db;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            background: var(--bg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text-main);
+        }
+
+        .page {
+            width: 100%;
+            max-width: 960px;
+            padding: 32px 24px 40px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 650;
+            letter-spacing: 0.02em;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: #f9fafb;
+            color: var(--text-muted);
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 18px 18px 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 14px;
+            gap: 8px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .card-caption {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .pill {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: #f9fafb;
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 14px;
+        }
+
+        .form-row-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 9px 10px;
+            font-size: 13px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            background: #f9fafb;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent-soft);
+            background: #ffffff;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        .auto-info {
+            grid-column: 1 / -1;
+            border-radius: 10px;
+            border: 1px dashed var(--border-subtle);
+            padding: 10px 12px;
+            background: #f9fafb;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 4px 10px;
+            font-size: 12px;
+        }
+
+        .auto-label {
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .auto-value {
+            font-weight: 500;
+        }
+
+        .button-row {
+            margin-top: 14px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        button {
+            border: 1px solid var(--border-strong);
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            background: #111827;
+            color: #f9fafb;
+            transition: background 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
+        }
+
+        button:hover {
+            background: #020617;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        button.secondary {
+            background: #ffffff;
+            color: var(--text-main);
+        }
+
+        button.secondary:hover {
+            background: #f3f4f6;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+        }
+
+        .result {
+            margin-top: 4px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            background: #f9fafb;
+            padding: 14px 14px 12px;
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .result-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .result-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .result-main {
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .result-main strong {
+            font-weight: 600;
+        }
+
+        .result-pre {
+            margin-top: 10px;
+            padding: 9px 10px 10px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            color: #111827;
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        .placeholder {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .error {
+            color: #b91c1c;
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="header">
+        <div class="title-row">
+            <div class="title">BGM 추천 테스트</div>
+            <span class="badge">Store mode · internal</span>
+        </div>
+        <p class="subtitle">
+            현재 환경(공간, 인테리어, 사람 밀도, 활동 목적)에 맞는 BGM을 추천합니다.
+            날씨·계절·시간은 서버에서 자동으로 감지합니다.
+        </p>
+    </header>
+
+    <main class="layout">
+        <!-- 왼쪽: 폼 -->
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">조건 입력</div>
+                    <div class="card-caption">필수 정보만 선택하고 추천 버튼을 눌러주세요.</div>
+                </div>
+                <span class="pill">자동 감지 사용중</span>
+            </div>
+
+            <form id="bgm-form">
+                <div class="form-grid">
+                    <div>
+                        <label for="space">공간 (space)</label>
+                        <select id="space">
+                            <option value="cafe">cafe</option>
+                            <option value="bar">bar</option>
+                            <option value="fitness">fitness</option>
+                            <option value="lounge">lounge</option>
+                            <option value="office">office</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="interior">인테리어 (interior)</label>
+                        <select id="interior">
+                            <option value="modern">modern</option>
+                            <option value="wood">wood</option>
+                            <option value="industrial">industrial</option>
+                            <option value="luxury">luxury</option>
+                            <option value="minimal">minimal</option>
+                        </select>
+                    </div>
+
+                    <div class="auto-info">
+                        <div>
+                            <div class="auto-label">날씨 (weather)</div>
+                            <div class="auto-value" id="currentWeather">자동 감지 대기중…</div>
+                        </div>
+                        <div>
+                            <div class="auto-label">계절 (season)</div>
+                            <div class="auto-value" id="currentSeason">자동 감지 대기중…</div>
+                        </div>
+                        <div>
+                            <div class="auto-label">시간대 (time)</div>
+                            <div class="auto-value" id="currentTime">자동 감지 대기중…</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="density">밀도 (density)</label>
+                        <select id="density">
+                            <option value="low">low</option>
+                            <option value="middle">middle</option>
+                            <option value="high">high</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="purpose">활동 목적 (purpose)</label>
+                        <select id="purpose">
+                            <option value="relax">relax</option>
+                            <option value="talk">talk</option>
+                            <option value="focus">focus</option>
+                            <option value="workout">workout</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row-full">
+                        <label for="recentHistory">최근 재생 ID 목록 (recentHistory)</label>
+                        <input id="recentHistory" type="text"
+                               placeholder="예: 3,5,8   (비우면 최근 재생 없음)">
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit">추천 받기</button>
+                </div>
+
+                <div id="errorMessage" class="error"></div>
+            </form>
+        </section>
+
+        <!-- 오른쪽: 결과 -->
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">추천 결과</div>
+                    <div class="card-caption">선택된 BGM과 사용된 조건을 함께 보여줍니다.</div>
+                </div>
+            </div>
+
+            <div class="result" id="result">
+                <div class="result-header">
+                    <div class="result-title" id="result-title-text">Dummy Track</div>
+                    <div class="result-sub" id="result-sub-text"></div>
+                </div>
+                <div class="result-main" id="result-main-text"></div>
+
+                <div class="button-row" style="justify-content: flex-start; gap: 10px; margin-top: 12px;">
+                    <button type="button" id="selectButton" class="secondary" disabled>
+                        이 곡 선택(학습)
+                    </button>
+                    <span class="card-caption" id="feedbackStatus"></span>
+                </div>
+
+                <pre class="result-pre" id="result-raw"></pre>
+            </div>
+
+            <p class="placeholder" id="result-placeholder">
+                아직 추천 결과가 없습니다. 왼쪽에서 조건을 선택한 뒤
+                <strong>추천 받기</strong> 버튼을 눌러보세요.
+            </p>
+        </section>
+    </main>
+</div>
+
+<script>
+    const form = document.getElementById('bgm-form');
+
+    const resultBox = document.getElementById('result');
+    const resultRaw = document.getElementById('result-raw');
+    const resultTitleText = document.getElementById('result-title-text');
+    const resultSubText = document.getElementById('result-sub-text');
+    const resultMainText = document.getElementById('result-main-text');
+    const resultPlaceholder = document.getElementById('result-placeholder');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const selectButton = document.getElementById('selectButton');
+    const feedbackStatus = document.getElementById('feedbackStatus');
+
+    const currentWeather = document.getElementById('currentWeather');
+    const currentSeason  = document.getElementById('currentSeason');
+    const currentTime    = document.getElementById('currentTime');
+
+    let lastRecommendation = null;
+    let lastRequestBody = null;
+
+    function loadHistory() {
+        try {
+            const raw = localStorage.getItem('bgmRecentHistory');
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveHistory(history) {
+        try {
+            localStorage.setItem('bgmRecentHistory', JSON.stringify(history));
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    let storedHistory = loadHistory();
+    const recentHistoryInput = document.getElementById('recentHistory');
+    if (storedHistory.length > 0) {
+        recentHistoryInput.value = storedHistory.join(',');
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        const recentInput = recentHistoryInput.value.trim();
+        let recentHistory = [];
+        if (recentInput.length > 0) {
+            recentHistory = recentInput
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+                .map(Number)
+                .filter(n => !Number.isNaN(n));
+            storedHistory = recentHistory;
+            saveHistory(storedHistory);
+        } else {
+            recentHistory = storedHistory;
+        }
+
+        const body = {
+            space: document.getElementById('space').value,
+            interior: document.getElementById('interior').value,
+            density: document.getElementById('density').value,
+            purpose: document.getElementById('purpose').value,
+            recentHistory: recentHistory
+        };
+
+        // 이번 추천 요청을 저장 (피드백 시 재사용)
+        lastRequestBody = {
+            space: body.space,
+            interior: body.interior,
+            density: body.density,
+            purpose: body.purpose
+        };
+
+        // 버튼 상태 초기화
+        lastRecommendation = null;
+        selectButton.disabled = true;
+        feedbackStatus.textContent = '';
+
+        fetch('/api/store/recommend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+            .then(async res => {
+                if (!res.ok) {
+                    let msg = 'HTTP ' + res.status;
+                    try {
+                        const j = await res.json();
+                        if (j && j.message) {
+                            msg = j.message + ' (HTTP ' + res.status + ')';
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                    throw new Error(msg);
+                }
+                return res.json();
+            })
+            .then(data => {
+                lastRecommendation = data;
+                resultPlaceholder.style.display = 'none';
+                resultBox.style.display = 'block';
+
+                resultTitleText.textContent = data.title || '제목 없음';
+                resultSubText.textContent =
+                    'ID ' + data.id + ' · Youtube: ' + (data.youtubeId || '-');
+
+                resultMainText.innerHTML =
+                    '<strong>현재 조건</strong> — ' +
+                    'weather: <strong>' + (data.weather || '-') +
+                    '</strong>, season: <strong>' + (data.season || '-') +
+                    '</strong>, time: <strong>' + (data.time || '-') +
+                    '</strong><br><span style="color: #6b7280;">conditionKey: ' +
+                    (data.conditionKey || '-') + '</span>';
+
+                resultRaw.textContent = JSON.stringify(data, null, 2);
+
+                if (data.weather) currentWeather.textContent = data.weather;
+                if (data.season)  currentSeason.textContent  = data.season;
+                if (data.time)    currentTime.textContent    = data.time;
+
+                selectButton.disabled = !data.id;
+            })
+            .catch(err => {
+                resultBox.style.display = 'none';
+                resultPlaceholder.style.display = 'block';
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = '에러 발생: ' + err.message;
+            });
+    });
+
+    // 추천된 곡을 실제로 "선택"했을 때 학습 반영
+    selectButton.addEventListener('click', function () {
+        if (!lastRecommendation || !lastRecommendation.id) {
+            return;
+        }
+        if (!lastRequestBody) {
+            return;
+        }
+
+        feedbackStatus.textContent = '학습 반영 중…';
+
+        const feedbackBody = {
+            musicId: lastRecommendation.id,
+            ...lastRequestBody,
+            weather: lastRecommendation.weather,
+            season: lastRecommendation.season,
+            time: lastRecommendation.time
+        };
+
+        fetch('/api/store/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(feedbackBody)
+        })
+            .then(async res => {
+                if (!res.ok) {
+                    let msg = 'HTTP ' + res.status;
+                    try {
+                        const j = await res.json();
+                        if (j && j.message) {
+                            msg = j.message + ' (HTTP ' + res.status + ')';
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                    throw new Error(msg);
+                }
+                return res.json();
+            })
+            .then(resp => {
+                // 최근 재생 목록 갱신 (최신이 앞)
+                storedHistory = [lastRecommendation.id, ...storedHistory.filter(id => id !== lastRecommendation.id)].slice(0, 10);
+                saveHistory(storedHistory);
+                recentHistoryInput.value = storedHistory.join(',');
+
+                feedbackStatus.textContent =
+                    '학습 반영 완료 ✅ (global: ' + resp.globalSelectionCount +
+                    ', condition: ' + resp.conditionSelectionCount + ')';
+
+                // 디버그용: raw에 함께 표시
+                const merged = {
+                    recommendation: lastRecommendation,
+                    feedback: resp
+                };
+                resultRaw.textContent = JSON.stringify(merged, null, 2);
+            })
+            .catch(err => {
+                feedbackStatus.textContent = '학습 반영 실패 ❌ (' + err.message + ')';
+            });
+    });
+</script>
+</body>
+</html>
